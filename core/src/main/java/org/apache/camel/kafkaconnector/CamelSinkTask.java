@@ -26,6 +26,7 @@ import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.ProducerTemplate;
+import org.apache.camel.component.kafka.KafkaConstants;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.kafkaconnector.utils.CamelKafkaConnectMain;
 import org.apache.camel.kafkaconnector.utils.TaskHelper;
@@ -177,6 +178,18 @@ public class CamelSinkTask extends SinkTask {
             Exchange exchange = new DefaultExchange(producer.getCamelContext());
             exchange.getMessage().setBody(record.value());
             exchange.getMessage().setHeader(KAFKA_RECORD_KEY_HEADER, record.key());
+            exchange.getMessage().setHeader(Exchange.MESSAGE_TIMESTAMP, record.timestamp());
+            // Set the same headers as in the case of a normal Kafka camel source
+            exchange.getMessage().setHeader(KafkaConstants.PARTITION, record.kafkaPartition());
+            exchange.getMessage().setHeader(KafkaConstants.TOPIC, record.topic());
+            exchange.getMessage().setHeader(KafkaConstants.OFFSET, record.kafkaOffset());
+            exchange.getMessage().setHeader(KafkaConstants.HEADERS, record.headers());
+            exchange.getMessage().setHeader(KafkaConstants.TIMESTAMP, record.timestamp());
+
+            if (record.key() != null) {
+                exchange.getMessage().setHeader(KafkaConstants.KEY, record.key());
+            }
+                
 
             for (Header header : record.headers()) {
                 if (header.key().startsWith(HEADER_CAMEL_PREFIX)) {
