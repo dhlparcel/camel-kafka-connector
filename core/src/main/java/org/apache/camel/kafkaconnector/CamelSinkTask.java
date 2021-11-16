@@ -186,6 +186,13 @@ public class CamelSinkTask extends SinkTask {
             exchange.getMessage().setHeader(KafkaConstants.HEADERS, record.headers());
             exchange.getMessage().setHeader(KafkaConstants.TIMESTAMP, record.timestamp());
 
+            // Set the same headers as in the case of a normal Kafka camel source
+            exchange.getMessage().setHeader(KafkaConstants.PARTITION.replace('.','_'), record.kafkaPartition());
+            exchange.getMessage().setHeader(KafkaConstants.TOPIC.replace('.','_'), record.topic());
+            exchange.getMessage().setHeader(KafkaConstants.OFFSET.replace('.','_'), record.kafkaOffset());
+            exchange.getMessage().setHeader(KafkaConstants.HEADERS.replace('.','_'), record.headers());
+            exchange.getMessage().setHeader(KafkaConstants.TIMESTAMP.replace('.','_'), record.timestamp());
+
             if (record.key() != null) {
                 exchange.getMessage().setHeader(KafkaConstants.KEY, record.key());
             }
